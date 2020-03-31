@@ -1,0 +1,41 @@
+#peer1.py
+
+import socket
+import os
+import argparse
+import time
+
+print("Client Started")
+
+while(True):
+    servStr = input("Please input a message (\"CLOSE\" to quit): ")
+    servStr = servStr.replace(":", " ")
+    servAddr = servStr.split(" ")
+    if (servAddr[0] == "CLOSE"):
+        break
+    elif (servAddr[0] == "CONNECT" and len(servAddr) == 3):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            failedToConnect = False
+            try:
+                s.settimeout(5)
+                print("Connecting...")
+                s.connect((servAddr[1], int(servAddr[2])))
+            except:
+                failedToConnect = True
+                print("Failed to connect.")
+            if(not failedToConnect):
+                print("Successfully Connected!")
+                
+            while (not failedToConnect):
+                msg = input("Please input a message (\"QUIT\" to disconnect): ")
+                msgs = msg.split(" ")
+                if (msg == "QUIT"):
+                    s.sendall(msg.encode())
+                    data = s.recv(1024)
+                    print(repr(data.decode()))
+                    break
+                
+                else:
+                    print("Command not recognized")
+
+print("Client disconnected.")
